@@ -34,16 +34,15 @@ const resolvers = {
             const token = signToken(user);
             return { token, user };
           },
-        saveBook: async (parent, { bookId, description, title, image, link }, context) => {
+        saveBook: async (parent, { bookId, description, title, image, link, authors }, context) => {
             if (context.user) {
               const book = await Book.create({
-                bookId, description, title, image, link,
-                author: context.user.username
+                bookId, description, title, image, link, authors, 
               });
       
               await User.findOneAndUpdate(
                 { _id: context.user._id },
-                { $addToSet: { savedBooks: book.bookId } }
+                { $addToSet: { savedBooks: bookId } }
               );
       
               return book;
@@ -54,7 +53,6 @@ const resolvers = {
             if (context.user) {
               const book = await Book.findOneAndDelete({
                 bookId,
-                authors: context.user.username,
               });
       
               await User.findOneAndUpdate(
